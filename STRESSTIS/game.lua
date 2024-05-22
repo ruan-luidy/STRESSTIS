@@ -68,16 +68,13 @@ function game.keypressed(key)
         return
     end
     if key == "right" then
-        local rotatedPiece = pieces.rotate(currentPiece) -- Gira a peça atual
-        if not game.canMove(rotatedPiece, currentX, currentY) then
-            if game.canMove(rotatedPiece, currentX - 1, currentY) then
-                currentX = currentX - 1
-                currentPiece = rotatedPiece
-            elseif game.canMove(rotatedPiece, currentX + 1, currentY) then
-                currentX = currentX + 1
-                currentPiece = rotatedPiece
-            end
-        else
+        local rotatedPiece = pieces.rotateClockwise(currentPiece) -- Gira a peça atual
+        if game.canMove(rotatedPiece, currentX, currentY) then
+            currentPiece = rotatedPiece
+        end
+    elseif key == "left" then
+        local rotatedPiece = pieces.rotateCounterClockwise(currentPiece) -- Gira a peça atual no sentido anti-horário
+        if game.canMove(rotatedPiece, currentX, currentY) then
             currentPiece = rotatedPiece
         end
     elseif key == "w" then

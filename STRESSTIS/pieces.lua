@@ -69,14 +69,27 @@ function pieces.getRandomPiece()
     return { shape = pieceData.shape, color = pieceData.color }
 end
 
--- Esta função rotaciona uma peça
-function pieces.rotate(piece)
+-- Esta função rotaciona uma peça sentido horário
+function pieces.rotateClockwise(piece)
     local newShape = {}
     local pieceSize = #piece.shape
     for y = 1, pieceSize do
         newShape[y] = {}
         for x = 1, pieceSize do
             newShape[y][x] = piece.shape[pieceSize - x + 1][y]
+        end
+    end
+    return { shape = newShape, color = piece.color }
+end
+
+-- Esta função rotaciona uma peça sentido anti-horário
+function pieces.rotateCounterClockwise(piece)
+    local newShape = {}
+    local pieceSize = #piece.shape
+    for y = 1, pieceSize do
+        newShape[y] = {}
+        for x = 1, pieceSize do
+            newShape[y][x] = piece.shape[x][pieceSize - y + 1]
         end
     end
     return { shape = newShape, color = piece.color }
