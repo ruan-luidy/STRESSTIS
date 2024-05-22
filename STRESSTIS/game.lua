@@ -7,7 +7,6 @@ local dropTimer = 0
 local dropInterval = 0.5
 local moveTimer = 0
 local moveInterval = 0.1
-local currentPiece, currentX, currentY
 local gameOver = false
 local score = 0
 
@@ -22,7 +21,6 @@ end
 function game.draw()
     grid.draw()                                       -- Desenha a grade
     if currentPiece then
-        pieces.draw(currentPiece, currentX, currentY) -- Desenha a peça atual
     end
     ui.draw(score, gameOver)                          -- Desenha a interface do usuário
 end
@@ -71,21 +69,29 @@ function game.keypressed(key)
         local rotatedPiece = pieces.rotateClockwise(currentPiece) -- Gira a peça atual
         if game.canMove(rotatedPiece, currentX, currentY) then
             currentPiece = rotatedPiece
+        elseif game.canMove(rotatedPiece, currentX - 1, currentY) then
+            currentPiece = rotatedPiece
+            currentX = currentX - 1
+        elseif game.canMove(rotatedPiece, currentX + 1, currentY) then
+            currentPiece = rotatedPiece
+            currentX = currentX + 1
         end
     elseif key == "left" then
         local rotatedPiece = pieces.rotateCounterClockwise(currentPiece) -- Gira a peça atual no sentido anti-horário
         if game.canMove(rotatedPiece, currentX, currentY) then
             currentPiece = rotatedPiece
+        elseif game.canMove(rotatedPiece, currentX - 1, currentY) then
+            currentPiece = rotatedPiece
+            currentX = currentX - 1
+        elseif game.canMove(rotatedPiece, currentX + 1, currentY) then
+            currentPiece = rotatedPiece
+            currentX = currentX + 1
         end
     elseif key == "w" then
         while game.canMove(currentPiece, currentX, currentY + 1) do
             currentY = currentY + 1
         end
-        game.placePiece()                -- Coloca a peça atual na grade
-        game.clearLines()                -- Limpa as linhas completas
-        if not game.spawnNewPiece() then -- Gera uma nova peça
-            gameOver = true              -- Se não puder mover a nova peça, o jogo acaba
-        end
+        game.placePiece() -- Coloca a peça atual na grade
     end
 end
 

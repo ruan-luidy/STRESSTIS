@@ -6,6 +6,8 @@
         "drawPiece",
         "drawGrid",
         "drawUI",
-        "spawnNewPiece"
+        "spawnNewPiece",
+        "gridOffsetX",
+        "gridOffsetY"
     ]
 }
