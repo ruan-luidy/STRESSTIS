@@ -3,6 +3,8 @@ local game = require("STRESSTIS.game")
 
 -- Esta função é chamada uma vez quando o jogo é carregado
 function love.load()
+    love.window.setTitle("STRESSTIS")
+    love.window.setMode(1280, 720, { resizable = false })
     game.load() -- Carrega o jogo
 end
 
