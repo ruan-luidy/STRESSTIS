@@ -10,7 +10,6 @@ local moveInterval = 0.1
 local gameOver = false
 local score = 0
 local windowWidth, windowHeight = 1280, 720
-local backgroundImage
 
 local pieces = {
     {
@@ -103,10 +102,12 @@ function drawGrid()
         for x = 1, cols do
             if grid[y][x].value == 0 then
                 love.graphics.setColor(1, 1, 1)
-                love.graphics.rectangle("line", gridOffsetX + (x - 1) * blockSize, gridOffsetY + (y - 1) * blockSize, blockSize, blockSize)
+                love.graphics.rectangle("line", gridOffsetX + (x - 1) * blockSize, gridOffsetY + (y - 1) * blockSize,
+                    blockSize, blockSize)
             else
                 love.graphics.setColor(grid[y][x].color)
-                love.graphics.rectangle("fill", gridOffsetX + (x - 1) * blockSize, gridOffsetY + (y - 1) * blockSize, blockSize, blockSize)
+                love.graphics.rectangle("fill", gridOffsetX + (x - 1) * blockSize, gridOffsetY + (y - 1) * blockSize,
+                    blockSize, blockSize)
             end
         end
     end
@@ -120,7 +121,8 @@ function drawPiece(piece, x, y)
     for py = 1, #piece.shape do
         for px = 1, #piece.shape[py] do
             if piece.shape[py][px] == 1 then
-                love.graphics.rectangle("fill", gridOffsetX + (x + px - 2) * blockSize, gridOffsetY + (y + py - 2) * blockSize, blockSize, blockSize)
+                love.graphics.rectangle("fill", gridOffsetX + (x + px - 2) * blockSize,
+                    gridOffsetY + (y + py - 2) * blockSize, blockSize, blockSize)
             end
         end
     end
@@ -135,9 +137,9 @@ local function canMove(piece, newX, newY)
     for y = 1, #piece.shape do
         for x = 1, #piece.shape[y] do
             if piece.shape[y][x] == 1 then
-                local gridX = newX + x - 1
-                local gridY = newY + y - 1
-                if gridX < 1 or gridX > cols or gridY > rows or (gridY > 0 and grid[gridY][gridX].value ~= 0) then
+                local targetX = newX + x - 1
+                local targetY = newY + y - 1
+                if targetX < 1 or targetX > cols or targetY > rows or (targetY > 0 and grid[targetY][targetX].value ~= 0) then
                     return false
                 end
             end
@@ -169,7 +171,6 @@ function love.keypressed(key)
     if key == "up" then
         local rotatedPiece = rotatePiece(currentPiece)
         if not canMove(rotatedPiece, currentX, currentY) then
-            -- Tentar mover a peça para a esquerda ou direita antes de abandonar a rotação
             if canMove(rotatedPiece, currentX - 1, currentY) then
                 currentX = currentX - 1
                 currentPiece = rotatedPiece
