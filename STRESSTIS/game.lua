@@ -1,8 +1,8 @@
 -- game.lua
 local game = {}
-local pieces = require("pieces")
-local grid = require("grid")
-local ui = require("ui")
+local pieces = require("STRESSTIS.pieces")
+local grid = require("STRESSTIS.grid")
+local ui = require("STRESSTIS.ui")
 local dropTimer = 0
 local dropInterval = 0.5
 local moveTimer = 0
@@ -32,7 +32,7 @@ function game.update(dt)
     if gameOver then return end -- Se o jogo acabou, não faz nada
     dropTimer = dropTimer + dt
     moveTimer = moveTimer + dt
-    local interval = love.keyboard.isDown("down") and dropInterval / 10 or dropInterval
+    local interval = love.keyboard.isDown("s") and dropInterval / 10 or dropInterval
     if dropTimer >= interval then
         dropTimer = 0
         if game.canMove(currentPiece, currentX, currentY + 1) then
@@ -47,9 +47,9 @@ function game.update(dt)
     end
     if moveTimer >= moveInterval then
         moveTimer = 0
-        if love.keyboard.isDown("left") and game.canMove(currentPiece, currentX - 1, currentY) then
+        if love.keyboard.isDown("a") and game.canMove(currentPiece, currentX - 1, currentY) then
             currentX = currentX - 1
-        elseif love.keyboard.isDown("right") and game.canMove(currentPiece, currentX + 1, currentY) then
+        elseif love.keyboard.isDown("d") and game.canMove(currentPiece, currentX + 1, currentY) then
             currentX = currentX + 1
         end
     end
@@ -57,13 +57,17 @@ end
 
 -- Esta função é chamada quando uma tecla é pressionada
 function game.keypressed(key)
+    if key == "tab" then
+        love.event.quit("restart") -- Se a tecla Tab é pressionada, reinicia o jogo
+        return
+    end
     if gameOver then
         if key == "r" then
             love.event.quit("restart") -- Se o jogo acabou e a tecla R é pressionada, reinicia o jogo
         end
         return
     end
-    if key == "up" then
+    if key == "right" then
         local rotatedPiece = pieces.rotate(currentPiece) -- Gira a peça atual
         if not game.canMove(rotatedPiece, currentX, currentY) then
             if game.canMove(rotatedPiece, currentX - 1, currentY) then
@@ -76,7 +80,7 @@ function game.keypressed(key)
         else
             currentPiece = rotatedPiece
         end
-    elseif key == "space" then
+    elseif key == "w" then
         while game.canMove(currentPiece, currentX, currentY + 1) do
             currentY = currentY + 1
         end
