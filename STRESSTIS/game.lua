@@ -20,13 +20,13 @@ end
 -- Esta função desenha o jogo na tela
 function game.draw()
     grid.draw()                                       -- Desenha a grade
-    if currentPiece then
-        pieces.draw(currentPiece, currentX, currentY) -- Desenha a peça atual
+    if currentPiece then                              -- Desenha a peça atual
+        pieces.draw(currentPiece, currentX, currentY)
     end
     ui.draw(score, gameOver)                          -- Desenha a interface do usuário
-end                                                   -- Esta função atualiza o estado do jogo
+end                                                   
 
-
+-- Esta função atualiza o estado do jogo
 function game.update(dt)
     if gameOver then return end -- Se o jogo acabou, não faz nada
     dropTimer = dropTimer + dt
