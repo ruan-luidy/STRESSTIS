@@ -1,5 +1,6 @@
 -- pieces.lua
 local pieces = {}
+local sprites = {}
 local pieceShapes = {
     {
         shape = {
@@ -58,6 +59,16 @@ local pieceShapes = {
         color = { 0, 0, 1 }, -- J-piece (Azul)
     },
 }
+
+function pieces.loadSprites()
+    sprites["I"] = love.graphics.newImage("")
+    sprites["J"] = love.graphics.newImage("")
+    sprites["L"] = love.graphics.newImage("")
+    sprites["O"] = love.graphics.newImage("")
+    sprites["S"] = love.graphics.newImage("")
+    sprites["T"] = love.graphics.newImage("")
+    sprites["Z"] = love.graphics.newImage("")
+end
 
 local iPieceOffsets = {
     [0] = { { 0, 0 }, { -1, 0 }, { 2, 0 }, { -1, 0 }, { 2, 0 } },
@@ -140,13 +151,14 @@ end
 
 -- Esta função desenha uma peça na tela
 function pieces.draw(piece, x, y)
-    love.graphics.setColor(piece.color)
+    local sprite = sprites[piece.type] -- Obtém o sprite da peça
     local gridOffsetX = (1280 - (10 * 30)) / 2
     local gridOffsetY = (720 - (20 * 30)) / 2
     for py = 1, #piece.shape do
         for px = 1, #piece.shape[py] do
             if piece.shape[py][px] == 1 then
-                love.graphics.rectangle("fill", gridOffsetX + (x + px - 2) * 30, gridOffsetY + (y + py - 2) * 30, 30, 30)
+                -- Desenha o sprite em vez do retângulo
+                love.graphics.draw(sprite, gridOffsetX + (x + px - 2) * 30, gridOffsetY + (y + py - 2) * 30)
             end
         end
     end
