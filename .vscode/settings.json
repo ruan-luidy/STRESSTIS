@@ -8,6 +8,11 @@
         "drawUI",
         "spawnNewPiece",
         "gridOffsetX",
-        "gridOffsetY"
+        "gridOffsetY",
+        "grid"
+    ],
+    "Lua.diagnostics.disable": [
+        "lowercase-global",
+        "undefined-global"
     ]
 }
