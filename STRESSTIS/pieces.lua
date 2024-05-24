@@ -59,6 +59,49 @@ local pieceShapes = {
     },
 }
 
+local iPieceOffsets = {
+    [0] = { { 0, 0 }, { -1, 0 }, { 2, 0 }, { -1, 0 }, { 2, 0 } },
+    [1] = { { -1, 0 }, { 0, 0 }, { 0, 0 }, { 0, 1 }, { 0, -2 } },
+    [2] = { { -1, -1 }, { 1, -1 }, { -2, -1 }, { 1, 0 }, { -2, 0 } },
+    [3] = { { 0, -1 }, { 0, -1 }, { 0, -1 }, { 0, -1 }, { 0, -1 } }
+}
+
+local jlstzPieceOffsets = {
+    [0] = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
+    [1] = { { 0, 0 }, { 1, 0 }, { 1, -1 }, { 0, 2 }, { 1, 2 } },
+    [2] = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
+    [3] = { { 0, 0 }, { -1, 0 }, { -1, -1 }, { 0, 2 }, { -1, 2 } }
+}
+
+local oPieceOffsets = {
+    [0] = { { 0, 0 } },
+    [1] = { { 0, -1 } },
+    [2] = { { -1, -1 } },
+    [3] = { { -1, 0 } }
+}
+
+function pieces.srsRotate(piece, direction)
+    local newPiece = pieces.rotateClockwise(piece) -- ou pieces.rotateCounterClockwise(piece) dependendo da direção
+    local offsets
+    if piece.shape == 'I' then
+        offsets = iPieceOffsets
+    elseif piece.shape == 'O' then
+        offsets = oPieceOffsets
+    else
+        offsets = jlstzPieceOffsets
+    end
+    for _, offset in ipairs(offsets) do
+        local testX = currentX + offset[1]
+        local testY = currentY + offset[2]
+        if grid.canPlacePiece(newPiece, testX, testY) then
+            currentX = testX
+            currentY = testY
+            return newPiece
+        end
+    end
+    return piece -- se a peça não puder ser rotacionada, retorne a peça original
+end
+
 -- Esta função pode inicializar qualquer configuração específica de peça, se necessário
 function pieces.initialize()
 end
