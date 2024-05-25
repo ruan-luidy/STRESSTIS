@@ -1,5 +1,4 @@
---main.lua
-local game = require("STRESSTIS.game")
+local game = require("STRESSTIS/game")
 
 -- Esta função é chamada uma vez quando o jogo é carregado
 function love.load()

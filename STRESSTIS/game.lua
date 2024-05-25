@@ -1,156 +1,83 @@
--- game.lua
+local grid = require "STRESSTIS/grid"
+local pieces = require "STRESSTIS/pieces"
+local ui = require "STRESSTIS/ui"
+
 local game = {}
-local pieces = require("STRESSTIS.pieces")
-local grid = require("STRESSTIS.grid")
-local ui = require("STRESSTIS.ui")
-local dropTimer = 0
-local dropInterval = 0.5
-local moveTimer = 0
-local moveInterval = 0.1
-local gameOver = false
-local score = 0
-local blurShader = require("STRESSTIS.EFFECTS.blurShader")
+local currentPiece
+local currentX, currentY
+local nextPiece
+local score
+local gameOver
 
--- Esta função carrega o jogo
-function game.load()
-    grid.initialize(20, 10, 30) -- Inicializa a grade
-    pieces.initialize()         -- Inicializa as peças
-    pieces.loadSprites()        -- Carrega os sprites
-    game.spawnNewPiece()        -- Gera uma nova peça
-end
-
--- Esta função desenha o jogo na tela
-function game.draw()
-    grid.draw()                                       -- Desenha a grade
-    if currentPiece then                              -- Desenha a peça atual
-        pieces.draw(currentPiece, currentX, currentY)
-    end
-    ui.draw(score, gameOver)                          -- Desenha a interface do usuário
-end                                                   
-
--- Reseta todas as variáveis para recomeçar o jogo
-function game.restart()
-    dropTimer = 0
-    dropInterval = 0.5
-    moveTimer = 0
-    moveInterval = 0.1
-    gameOver = false
-    score = 0
+-- Função de inicialização do jogo
+function game.initialize()
     grid.initialize(20, 10, 30)
-    game.spawnNewPiece()
-end
-
--- Esta função atualiza o estado do jogo
-function game.update(dt)
-    if gameOver then return end -- Se o jogo acabou, não faz nada
-    dropTimer = dropTimer + dt
-    moveTimer = moveTimer + dt
-    local interval = love.keyboard.isDown("s") and dropInterval / 10 or dropInterval
-    if dropTimer >= interval then
-        dropTimer = 0
-        if game.canMove(currentPiece, currentX, currentY + 1) then
-            currentY = currentY + 1
-        else
-            game.placePiece()                -- Coloca a peça atual na grade
-            game.clearLines()                -- Limpa as linhas completas
-            if not game.spawnNewPiece() then -- Gera uma nova peça
-                gameOver = true              -- Se não puder mover a nova peça, o jogo acaba
-            end
-        end
-    end
-    if moveTimer >= moveInterval then
-        moveTimer = 0
-        if love.keyboard.isDown("a") and game.canMove(currentPiece, currentX - 1, currentY) then
-            currentX = currentX - 1
-        elseif love.keyboard.isDown("d") and game.canMove(currentPiece, currentX + 1, currentY) then
-            currentX = currentX + 1
-        end
-    end
-end
-
--- Esta função é chamada quando uma tecla é pressionada
-function game.keypressed(key)
-    if key == "tab" then
-        game.restart() -- Se a tecla Tab é pressionada, reinicia o jogo
-        return
-    end
-    if gameOver then
-        if key == "r" then
-            love.event.quit("restart") -- Se o jogo acabou e a tecla R é pressionada, reinicia o jogo
-        end
-        return
-    end
-    if key == "right" then
-        local rotatedPiece = pieces.rotateClockwise(currentPiece) -- Gira a peça atual
-        if game.canMove(rotatedPiece, currentX, currentY) then
-            currentPiece = rotatedPiece
-        elseif game.canMove(rotatedPiece, currentX - 1, currentY) then
-            currentPiece = rotatedPiece
-            currentX = currentX - 1
-        elseif game.canMove(rotatedPiece, currentX + 1, currentY) then
-            currentPiece = rotatedPiece
-            currentX = currentX + 1
-        end
-    elseif key == "left" then
-        local rotatedPiece = pieces.rotateCounterClockwise(currentPiece) -- Gira a peça atual no sentido anti-horário
-        if game.canMove(rotatedPiece, currentX, currentY) then
-            currentPiece = rotatedPiece
-        elseif game.canMove(rotatedPiece, currentX - 1, currentY) then
-            currentPiece = rotatedPiece
-            currentX = currentX - 1
-        elseif game.canMove(rotatedPiece, currentX + 1, currentY) then
-            currentPiece = rotatedPiece
-            currentX = currentX + 1
-        end
-    elseif key == "w" then
-        while game.canMove(currentPiece, currentX, currentY + 1) do
-            currentY = currentY + 1
-        end
-        game.placePiece() -- Coloca a peça atual na grade
-    end
-end
-
--- Esta função verifica se uma peça pode se mover para uma nova posição
-function game.canMove(piece, newX, newY)
-    return grid.canMove(piece, newX, newY)
-end
-
--- Esta função coloca uma peça na grade
-function game.placePiece()
-    -- Aplica o sharder de desfoque
-    love.graphics.setShader(blurShader)
-
-    -- Colcoa a peça na grade
-    grid.placePiece(currentPiece, currentX, currentY)
-
-    -- Desenha a grade e as peças
-    grid.draw()
-    pieces.draw(currentPiece, currentX, currentY)
-
-    -- Desativa o shader
-    love.graphics.setShader()
-end
-
--- Esta função limpa as linhas completas da grade e atualiza a pontuação
-function game.clearLines()
-    local linesCleared = grid.clearLines()
-    score = score + 100 * linesCleared
-
-    -- Aumenta a velocidade a cada mil pontos
-    if score % 1000 == 0 then
-        dropInterval = dropInterval * 0.9 -- Reduz o intervlo de queda em 10%
-    end
-end
-
--- Esta função gera uma nova peça e a coloca na posição inicial
-function game.spawnNewPiece()
+    pieces.loadSprites()
     currentPiece = pieces.getRandomPiece()
     currentX, currentY = grid.getStartingPosition(currentPiece)
-    if not game.canMove(currentPiece, currentX, currentY) then
-        gameOver = true -- Se a nova peça não puder se mover, o jogo acaba
-        return false
+    nextPiece = pieces.getRandomPiece()
+    score = 0
+    gameOver = false
+end
+
+-- Alias para a função de inicialização para manter a compatibilidade com o main.lua
+game.load = game.initialize
+
+-- Função de atualização do jogo
+function game.update(dt)
+    if not gameOver then
+        -- Atualizações de lógica do jogo aqui
     end
-    return true
+end
+
+-- Função de desenho do jogo
+function game.draw()
+    grid.draw()
+    pieces.draw(currentPiece, currentX, currentY)
+    ui.draw(score, gameOver)
+end
+
+-- Função de tratamento de teclas pressionadas
+function game.keypressed(key)
+    if key == "left" then
+        if grid.canMove(currentPiece, currentX - 1, currentY) then
+            currentX = currentX - 1
+        end
+    elseif key == "right" then
+        if grid.canMove(currentPiece, currentX + 1, currentY) then
+            currentX = currentX + 1
+        end
+    elseif key == "down" then
+        if grid.canMove(currentPiece, currentX, currentY + 1) then
+            currentY = currentY + 1
+        end
+    elseif key == "up" then
+        local newPiece = pieces.rotateClockwise(currentPiece)
+        if grid.canMove(newPiece, currentX, currentY) then
+            currentPiece = newPiece
+        end
+    elseif key == "space" then
+        while grid.canMove(currentPiece, currentX, currentY + 1) do
+            currentY = currentY + 1
+        end
+        game.placePiece()
+    elseif key == "r" then
+        game.initialize()
+    end
+end
+
+-- Função para colocar a peça na grade
+function game.placePiece()
+    grid.placePiece(currentPiece, currentX, currentY)
+    local clearedLines = grid.clearLines()
+    score = score + clearedLines * 100
+    if not grid.canMove(nextPiece, grid.getStartingPosition(nextPiece)) then
+        gameOver = true
+    else
+        currentPiece = nextPiece
+        currentX, currentY = grid.getStartingPosition(currentPiece)
+        nextPiece = pieces.getRandomPiece()
+    end
 end
 
 return game

@@ -1,4 +1,3 @@
--- grid.lua
 local grid = {}
 local rows, cols, blockSize
 local gridData = {}
@@ -9,7 +8,7 @@ function grid.initialize(r, c, bs)
     for y = 1, rows do
         gridData[y] = {}
         for x = 1, cols do
-            gridData[y][x] = { value = 0, color = { 0, 0, 0 } }
+            gridData[y][x] = { value = 0, sprite = nil }
         end
     end
 end
@@ -25,9 +24,9 @@ function grid.draw()
                 love.graphics.rectangle("line", gridOffsetX + (x - 1) * blockSize, gridOffsetY + (y - 1) * blockSize,
                     blockSize, blockSize)
             else
-                love.graphics.setColor(gridData[y][x].color)
-                love.graphics.rectangle("fill", gridOffsetX + (x - 1) * blockSize, gridOffsetY + (y - 1) * blockSize,
-                    blockSize, blockSize)
+                love.graphics.setColor(1, 1, 1) -- Define a cor para branco para que não haja influência na cor do sprite
+                love.graphics.draw(gridData[y][x].sprite, gridOffsetX + (x - 1) * blockSize,
+                    gridOffsetY + (y - 1) * blockSize)
             end
         end
     end
@@ -57,7 +56,7 @@ function grid.placePiece(piece, x, y)
                 local gridY = y + py - 1
                 local gridX = x + px - 1
                 if gridY > 0 then
-                    gridData[gridY][gridX] = { value = 1, color = piece.color }
+                    gridData[gridY][gridX] = { value = 1, sprite = piece.sprite }
                 end
             end
         end
@@ -85,7 +84,7 @@ function grid.clearLines()
     for _ = 1, #linesToRemove do
         local newLine = {}
         for x = 1, cols do
-            newLine[x] = { value = 0, color = { 0, 0, 0 } }
+            newLine[x] = { value = 0, sprite = nil }
         end
         table.insert(gridData, 1, newLine)
     end
